@@ -1,5 +1,5 @@
-mod qs_types;
-use qs_types::*;
+mod types;
+use types::*;
 
 fn get_student_value(cl: ConfidenceLevel) -> f64 {
     match cl {

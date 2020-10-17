@@ -13,8 +13,9 @@ pub enum ConfidenceLevel {
 
 #[derive(Copy, Clone, Eq)]
 pub enum SimulationEvent {
-    RequestArrival,
+    NewRequest,
     ProcessRequest,
+    ExtendBuffer,
     StopSimulation,
 }
 
@@ -23,38 +24,30 @@ pub struct Request {
     pub processing_time_in_ms: u64,
 }
 
-#[derive(Copy, Clone)]
-pub struct Source {
-    pub cooldown: f64,
-    pub next_arrival_at: u64,
-    pub ready: u8,
-}
-
-#[derive(Copy, Clone)]
-pub struct Device {
-    pub next_idle_at: u64,
-    pub ready: u8,
-}
-
 #[derive(Eq)]
 pub struct State {
-    pub sources: Vec<Source>,
+    pub sources: Vec<u64>,
     pub max_sources: u32,
-    pub devices: Vec<Device>,
+    pub devices: Vec<u64>,
     pub device_pointer: u32,
     pub max_devices: u32,
     pub buf: Vec<Request>,
     pub buf_pointer: u32,
     pub buf_max_length: u32,
     pub next_idle_at: u64,
+    pub next_any_idle_at: u64,
+    pub next_arrival_at: u64,
     pub requests_left: u32,
+    pub requests_denied: u32,
+    pub total_time_spent_in_system: u64,
+    pub total_time_devices_busy: u64,
 }
 
 #[derive(Eq)]
 pub struct Simulation {
     pub state: State,
+    pub current_event: SimulationEvent,
     pub current_time: u64,
-    pub next_event: SimulationEvent,
 }
 
 pub struct Res {
