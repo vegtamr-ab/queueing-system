@@ -21,9 +21,14 @@ fn simulator(s: Simulation) -> Simulation {
 }
 
 fn get_new_state(s: Simulation) -> State {
-    let new_sources = Lazy::new(|| update_sources(st));
-    let new_devices = Lazy::new(|| update_devices(st));
-    let new_buffer = Lazy::new(|| get_new_buffer(st));
+    let arrival_time = Lazy::new(|| get_new_arrival_time(st));
+    let idle_time = Lazy::new(|| get_new_idle_time(st));
+    let new_sources = Lazy::new(|| update_sources(st, arrival_time));
+    let new_devices = Lazy::new(|| update_devices(st, idle_time);
+    let new_buffer = Lazy::new(|| update_buffer(st));
+    let new_denied = Lazy::new(|| update_denied(st));
+    let new_buffer_time = Lazy::new(|| update_buffer_time(s));
+    let new_busy = Lazy::new(|| update_busy_time(st, idle_time));
 
     match s.current_event {
         SimulationEvent::StopSimulation => s.state,
@@ -42,9 +47,10 @@ fn get_new_state(s: Simulation) -> State {
             next_any_idle_at: s.state.devices.iter().min().expect("No devices"),
             next_arrival_at: s.state.sources.iter().min().expect("No sources"),
             requests_left: s.state.requests_left,
-            requests_denied: 0,
-            total_time_spent_in_system: 0,
-            total_times_devices_busy: 0,
+            requests_denied: *new_denied,
+            total_time_in_buffer: *new_buffer_time,
+            total_time_devices_busy: *new_busy,
+            total_time_spent_in_system: *new_buffer_time + *new_busy,
         },
         SimulationEvent::ProcessRequest => State {
             sources: s.state.sources,
@@ -61,21 +67,21 @@ fn get_new_state(s: Simulation) -> State {
             next_any_idle_at: s.state.devices.iter().min().expect("No devices"),
             next_arrival_at: s.state.sources.iter().min().expect("No sources"),
             requests_left: s.state.requests_left - 1,
-            requests_denied: 0,
-            total_time_spent_in_system: 0,
-            total_times_devices_busy: 0,
+            requests_denied: *new_denied,
+            total_time_in_buffer: *new_buffer_time,
+            total_time_devices_busy: *new_busy,
+            total_time_spent_in_system: *new_buffer_time + *new_busy,
         },
     }
 }
 
-fn update_sources(st: State) -> Vec<u64> {
+fn update_sources(st: State, new_arrival_time: u64) -> Vec<u64> {
     let min = Lazy::new(|| st.sources.iter().min().unwrap());
     let min_pos = Lazy::new(|| st.sources.iter().position(|x| x == *min));
-    let new_arrival_time = Lazy::new(|| get_new_arrival_time(st));
 
     st.sources.iter()
               .enumerate()
-              .map(|(i, x)| if i == *min_pos.unwrap() { &(*min + *new_arrival_time)  } else { x })
+              .map(|(i, x)| if i == *min_pos.unwrap() { &(*min + new_arrival_time)  } else { x })
 }
 
 fn get_new_arrival_time(st: State) -> u64 {
@@ -86,8 +92,8 @@ fn get_new_arrival_time(st: State) -> u64 {
     }
 }
 
-fn update_devices(st: State) -> (Vec<u64>, usize) {
-    let pick = Lazy::new(|| pick_device(s));
+fn update_devices(st: State, new_idle_time: u64) -> (Vec<u64>, usize) {
+    let pick = Lazy::new(|| pick_device(s, new_idle_time));
 
     match st.next_arrival_at.cmp(&st.next_any_idle_at) {
         Less => (st.devices, st.device_pointer),
@@ -95,28 +101,27 @@ fn update_devices(st: State) -> (Vec<u64>, usize) {
     }
 }
 
-fn pick_device(st: State) -> (Vec<u64>, usize) {
+fn pick_device(st: State, new_idle_time: u64) -> (Vec<u64>, usize) {
     let min = Lazy::new(|| st.devices.iter().min().unwrap());
     let min_pos = Lazy::new(|| st.devices.iter().position(|x| x == *min));
     let min_pos_pointer = Lazy::new(|| &st.devices[st.device_pointer..].iter().position(|x| x == *min));
-    let new_idle_time = Lazy::new(|| get_new_idle_time(st));
 
     match st.devices.filter(|x| x == *min).exactly_one() {
         Some(a) => (st.devices.iter()
-                              .map(|x| if x == *min { &(*min + *new_idle_time) } else { x })
+                              .map(|x| if x == *min { &(*min + new_idle_time) } else { x })
                               .cloned()
                               .collect(),
                     *min_pos.unwrap() + 1),
         _ => match *min_pos_pointer {
             Some(a) => (st.devices.iter()
                                   .enumerate()
-                                  .map(|(i, x)| if i == (a + st.device_pointer) { &(*min + *new_idle_time) } else { x })
+                                  .map(|(i, x)| if i == (a + st.device_pointer) { &(*min + new_idle_time) } else { x })
                                   .cloned()
                                   .collect(),
                         a + st.device_pointer + 1),
             None    => (st.buf.iter()
                                   .enumerate()
-                                  .map(|(i, x)| if i == *min_pos.unwrap() { &(*min + *new_idle_time) } else { x })
+                                  .map(|(i, x)| if i == *min_pos.unwrap() { &(*min + new_idle_time) } else { x })
                                   .cloned()
                                   .collect(),
                         *min_pos.unwrap() + 1),
@@ -124,11 +129,11 @@ fn pick_device(st: State) -> (Vec<u64>, usize) {
     }
 }
 
-fn get_new_idle_time(st: State) {
+fn get_new_idle_time(st: State) -> u64 {
     -1 * st.average_device_cd * (rand::random::<f64>().ln()).round() as u64
 }
 
-fn get_new_buffer(st: State) -> (Vec<Option<u64>>, usize) {
+fn update_buffer(st: State) -> (Vec<Option<u64>>, usize) {
     let max = Lazy::new(|| st.buf.iter().max().unwrap());
     let min = Lazy::new(|| st.buf.iter().filter(|x| x.is_some()).min().unwrap());
     let min_pos = Lazy::new(|| st.buf.iter().position(|x| x == *min));
@@ -167,6 +172,32 @@ fn add_to_buffer(st: State) -> (Vec<Option<u64>>, usize) {
                          .cloned()
                          .collect(),
                     *pos_initial.unwrap() + 1),
+    }
+}
+
+fn update_denied(st: State) -> u32 {
+    match st.next_arrival_at.cmp(&st.next_any_idle_at) {
+        Less if st.buf.iter().all(|x| x.is_some()) => st.requests_denied + 1,
+        _ => st.requests_denied,
+    }
+}
+
+fn update_buffer_time(s: Simulation) -> u64 {
+    let max = Lazy::new(|| s.state.buf.iter().max().unwrap());
+    let min = Lazy::new(|| s.state.buf.iter().filter(|x| x.is_some()).min().unwrap());
+
+    match st.next_arrival_at.cmp(&st.next_any_idle_at) {
+        Less if s.state.buf.iter().all(|x| x.is_some()) => s.state.total_time_in_buffer + (s.current_time - *min.unwrap()),
+        Less                                            => s.state.total_time_in_buffer,
+        _ if s.state.buf.iter().all(|x| x.is_none())    => s.state.total_time_in_buffer,
+        _                                               => s.state.total_time_in_buffer + (s.current_time - *max.unwrap()),
+    }
+}
+
+fn update_busy_time(st: State, idle_time: u64) -> u64 {
+    match st.next_arrival_at.cmp(&st.next_any_idle_at) {
+        Less => st.total_time_devices_busy,
+        _ => st.total_time_devices_busy + idle_time,
     }
 }
 

@@ -36,8 +36,9 @@ pub struct State {
     pub next_arrival_at: u64,
     pub requests_left: u32,
     pub requests_denied: u32,
-    pub total_time_spent_in_system: u64,
+    pub total_time_in_buffer: u64,
     pub total_time_devices_busy: u64,
+    pub total_time_spent_in_system: u64,
 }
 
 #[derive(Eq)]
