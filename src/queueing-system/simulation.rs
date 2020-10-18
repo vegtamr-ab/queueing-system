@@ -5,13 +5,14 @@ use lazy::*;
 
 fn simulator(s: Simulation) -> Simulation {
     let state = lazy!(get_new_state(s));
+    let get_next_et = lazy!(get_next_event_and_time(*state));
 
     match s.current_event {
         SimulationEvent::StopSimulation => s,
         _ => Simulation {
             state: *state,
-            current_event: get_next_event_and_time(*state).0,
-            current_time: get_next_event_and_time(*state).1,
+            current_event: *get_next_et.0,
+            current_time: *get_next_et.1,
         },
     }
 }
@@ -57,11 +58,18 @@ fn get_new_state(s: Simulation) -> State {
 }
 
 fn get_new_buffer(st: State) -> (Vec<Option<u64>>, usize) {
-    let max = lazy!(st.buf.iter().max.unwrap());
+    let max = lazy!(st.buf.iter().max().unwrap());
+    let min = lazy!(st.buf.iter().filter(|x| x.is_some()).min().unwrap());
+    let min_pos = lazy!(st.buf.iter().position(|x| x == *min));
+    let add = lazy!(add_to_buffer(st));
 
     match st.next_arrival_at.cmp(&st.next_any_idle_at) {
-        Less if st.buf.iter().all(|x| x.is_some()) => (),
-        Less                                       => (),
+        Less if st.buf.iter().all(|x| x.is_some()) => (st.buf.iter()
+                                                             .map(|x| if x == *min { &Some(st.next_arrival_at) } else { x })
+                                                             .cloned()
+                                                             .collect(),
+                                                       *min_pos.unwrap() + 1),
+        Less                                       => (*add.0, *add.1),
         _ if st.buf.iter().all(|x| x.is_none())    => (st.buf, st.buf_pointer),
         _                                          => (st.buf.iter()
                                                              .map(|x| if x == *max { &None } else { x })
@@ -71,17 +79,23 @@ fn get_new_buffer(st: State) -> (Vec<Option<u64>>, usize) {
     } 
 }
 
-fn add_to_buffer(st: State) -> Vec<Option<u64>> {
+fn add_to_buffer(st: State) -> (Vec<Option<u64>>, usize) {
     let pos = lazy!(&st.buf[st.buf_pointer..].iter().position(|x| x.is_none()));
     let pos_initial = lazy!(st.buf.iter().position(|x| x.is_none()));
 
     match *pos {
-        Some(a) => st.buf.iter()
+        Some(a) => (st.buf.iter()
                          .enumerate()
                          .map(|(i, x)| if i == (a + st.buf_pointer) { &Some(st.next_arrival_at) } else { x })
                          .cloned()
                          .collect(),
-        None => ,
+                    a + st.buf_pointer + 1),
+        None    => (st.buf.iter()
+                         .enumerate()
+                         .map(|(i, x)| if i == *pos_initial.unwrap() { &Some(st.next_arrival_at) } else { x })
+                         .cloned()
+                         .collect(),
+                    *pos_initial.unwrap() + 1),
     }
 }
 
