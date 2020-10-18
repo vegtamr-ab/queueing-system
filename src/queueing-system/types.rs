@@ -19,19 +19,14 @@ pub enum SimulationEvent {
     StopSimulation,
 }
 
-#[derive(Copy, Clone, Eq)]
-pub struct Request {
-    pub processing_time_in_ms: u64,
-}
-
 #[derive(Eq)]
 pub struct State {
-    pub sources: Vec<u64>,
+    pub sources: Vec<u64>,                 //time of next arrival
     pub max_sources: u32,
-    pub devices: Vec<u64>,
+    pub devices: Vec<u64>,                 //time of next idle state
     pub device_pointer: u32,
     pub max_devices: u32,
-    pub buf: Vec<Request>,
+    pub buf: Vec<Option<u64>>,             //time of arrival
     pub buf_pointer: u32,
     pub buf_max_length: u32,
     pub next_idle_at: u64,

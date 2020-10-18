@@ -61,18 +61,26 @@ fn get_new_state(s: Simulation) -> State {
     }
 }
 
-fn get_new_buffer(st: State) -> (Vec<Request>, u32) {
-    (Vec::new(), 0)
+fn get_new_buffer(st: State) -> (Vec<u64>, u32) {
+    match st.next_arrival_at.cmp(&st.next_any_idle_at) {
+        Less                                    => ,
+        _ if st.buf.iter().all(|x| x.is_none()) => (st.buf, st.buf_pointer),
+        _                                       => (st.buf.iter()
+                                                          .filter(|&x| x != st.buf.iter().max().unwrap())
+                                                          .cloned()
+                                                          .collect(),
+                                                          st.buf_pointer),
+    } 
 }
 
 fn get_next_event_and_time(st: State) -> (SimulationEvent, u64) {
     if st.requests_left == 0 {
         (SimulationEvent::StopSimulation, st.next_idle_at)
-    } else if st.next_arrival_at < st.next_any_idle_at {
-        (SimulationEvent::NewRequest, st.next_arrival_at)
-    } else if st.buf.is_empty() {
-        (SimulationEvent::NewRequest, st.next_arrival_at)
     } else {
-        (SimulationEvent::ProcessRequest, st.next_any_idle_at)
+        match st.next_arrival_at.cmp(&st.next_any_idle_at) {
+            Less                                    => (SimulationEvent::NewRequest, st.next_arrival_at),
+            _ if st.buf.iter().all(|x| x.is_none()) => (SimulationEvent::NewRequest, st.next_arrival_at),
+            _                                       => (SimulationEvent::ProcessRequest, st.next_any_idle_at),
+        }
     }
 }
