@@ -8,4 +8,5 @@ edition = "2018"
 
 [dependencies]
 druid = "0.6.0"
-lazy = "0.5.3"
+itertools = "0.9.0"
+rand = "0.7.3"

@@ -1,11 +1,14 @@
+#![feature(once_cell)]
+
 mod types;
 use types::*;
 
-use lazy::*;
+use itertools::Itertools;
+use std::lazy::Lazy;
 
 fn simulator(s: Simulation) -> Simulation {
-    let state = lazy!(get_new_state(s));
-    let get_next_et = lazy!(get_next_event_and_time(*state));
+    let state = Lazy::new(|| get_new_state(s));
+    let get_next_et = Lazy::new(|| get_next_event_and_time(*state));
 
     match s.current_event {
         SimulationEvent::StopSimulation => s,
@@ -18,16 +21,19 @@ fn simulator(s: Simulation) -> Simulation {
 }
 
 fn get_new_state(s: Simulation) -> State {
-    let new_buffer = lazy!(get_new_buffer(st));
+    let new_devices = Lazy::new(|| update_devices(st));
+    let new_buffer = Lazy::new(|| get_new_buffer(st));
 
     match s.current_event {
         SimulationEvent::StopSimulation => s.state,
         SimulationEvent::NewRequest => State {
             sources: s.state.sources/************ */,
             max_sources: s.state.max_sources,
-            devices: s.state.devices,
-            device_pointer: s.state.device_pointer,
+            average_arrival_cd: s.state.average_arrival_cd,
+            devices: *new_devices.0,
+            device_pointer: *new_devices.1,
             max_devices: s.state.max_devices,
+            average_device_cd: s.state.average_device_cd,
             buf: *new_buffer.0,
             buf_pointer: *new_buffer.1,
             buf_max_length: s.state.buf_max_length,
@@ -37,14 +43,16 @@ fn get_new_state(s: Simulation) -> State {
             requests_left: s.state.requests_left,
             requests_denied: 0,
             total_time_spent_in_system: 0,
-            total_times_devices_busy: s.state.total_time_devices_busy,
+            total_times_devices_busy: 0,
         },
         SimulationEvent::ProcessRequest => State {
             sources: s.state.sources,
             max_sources: s.state.max_sources,
-            devices: Vec::new(),
-            device_pointer: 0,
+            average_arrival_cd: s.state.average_arrival_cd,
+            devices: *new_devices.0,
+            device_pointer: *new_devices.1,
             max_devices: s.state.max_devices,
+            average_device_cd: s.state.average_device_cd,
             buf: *new_buffer.0,
             buf_pointer: *new_buffer.1,
             buf_max_length: s.state.buf_max_length,
@@ -59,11 +67,53 @@ fn get_new_state(s: Simulation) -> State {
     }
 }
 
+fn update_devices(st: State) -> (Vec<u64>, usize) {
+    let pick = Lazy::new(|| pick_device(s));
+
+    match st.next_arrival_at.cmp(&st.next_any_idle_at) {
+        Less => (st.devices, st.device_pointer),
+        _ => (*pick.0, *pick.1),
+    }
+}
+
+fn pick_device(st: State) -> (Vec<u64>, usize) {
+    let min = Lazy::new(|| st.devices.iter().min().unwrap());
+    let min_pos = Lazy::new(|| st.devices.iter().position(|x| x == *min));
+    let min_pos_pointer = Lazy::new(|| &st.devices[st.device_pointer..].iter().position(|x| x == *min));
+    let new_idle_time = Lazy::new(|| get_new_idle_time(st));
+
+    match st.devices.filter(|x| x == *min).exactly_one() {
+        Some(a) => (st.devices.iter()
+                              .map(|x| if x == *min { &(*min + *new_idle_time) } else { x })
+                              .cloned()
+                              .collect(),
+                    *min_pos.unwrap() + 1),
+        _ => match *min_pos_pointer {
+            Some(a) => (st.devices.iter()
+                                  .enumerate()
+                                  .map(|(i, x)| if i == (a + st.device_pointer) { *min + *new_idle_time } else { x })
+                                  .cloned()
+                                  .collect(),
+                        a + st.device_pointer + 1),
+            None    => (st.buf.iter()
+                                  .enumerate()
+                                  .map(|(i, x)| if i == *min_pos.unwrap() { *min + *new_idle_time } else { x })
+                                  .cloned()
+                                  .collect(),
+                        *min_pos.unwrap() + 1),
+        },
+    }
+}
+
+fn get_new_idle_time(st: State) {
+    -1 * st.average_device_cd * (rand::random::<f64>().ln()).round()
+}
+
 fn get_new_buffer(st: State) -> (Vec<Option<u64>>, usize) {
-    let max = lazy!(st.buf.iter().max().unwrap());
-    let min = lazy!(st.buf.iter().filter(|x| x.is_some()).min().unwrap());
-    let min_pos = lazy!(st.buf.iter().position(|x| x == *min));
-    let add = lazy!(add_to_buffer(st));
+    let max = Lazy::new(|| st.buf.iter().max().unwrap());
+    let min = Lazy::new(|| st.buf.iter().filter(|x| x.is_some()).min().unwrap());
+    let min_pos = Lazy::new(|| st.buf.iter().position(|x| x == *min));
+    let add = Lazy::new(|| add_to_buffer(st));
 
     match st.next_arrival_at.cmp(&st.next_any_idle_at) {
         Less if st.buf.iter().all(|x| x.is_some()) => (st.buf.iter()
@@ -82,8 +132,8 @@ fn get_new_buffer(st: State) -> (Vec<Option<u64>>, usize) {
 }
 
 fn add_to_buffer(st: State) -> (Vec<Option<u64>>, usize) {
-    let pos = lazy!(&st.buf[st.buf_pointer..].iter().position(|x| x.is_none()));
-    let pos_initial = lazy!(st.buf.iter().position(|x| x.is_none()));
+    let pos = Lazy::new(|| &st.buf[st.buf_pointer..].iter().position(|x| x.is_none()));
+    let pos_initial = Lazy::new(|| st.buf.iter().position(|x| x.is_none()));
 
     match *pos {
         Some(a) => (st.buf.iter()
