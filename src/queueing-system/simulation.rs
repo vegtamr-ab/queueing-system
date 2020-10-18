@@ -21,13 +21,14 @@ fn simulator(s: Simulation) -> Simulation {
 }
 
 fn get_new_state(s: Simulation) -> State {
+    let new_sources = Lazy::new(|| update_sources(st));
     let new_devices = Lazy::new(|| update_devices(st));
     let new_buffer = Lazy::new(|| get_new_buffer(st));
 
     match s.current_event {
         SimulationEvent::StopSimulation => s.state,
         SimulationEvent::NewRequest => State {
-            sources: s.state.sources/************ */,
+            sources: *new_sources,
             max_sources: s.state.max_sources,
             average_arrival_cd: s.state.average_arrival_cd,
             devices: *new_devices.0,
@@ -67,6 +68,24 @@ fn get_new_state(s: Simulation) -> State {
     }
 }
 
+fn update_sources(st: State) -> Vec<u64> {
+    let min = Lazy::new(|| st.sources.iter().min().unwrap());
+    let min_pos = Lazy::new(|| st.sources.iter().position(|x| x == *min));
+    let new_arrival_time = Lazy::new(|| get_new_arrival_time(st));
+
+    st.sources.iter()
+              .enumerate()
+              .map(|(i, x)| if i == *min_pos.unwrap() { &(*min + *new_arrival_time)  } else { x })
+}
+
+fn get_new_arrival_time(st: State) -> u64 {
+    if rand::random() {
+        st.average_arrival_cd + (rand::random::<f64>() * st.average_arrival_cd as f64 * 0.1).round() as u64
+    } else {
+        st.average_arrival_cd - (rand::random::<f64>() * st.average_arrival_cd as f64 * 0.1).round() as u64
+    }
+}
+
 fn update_devices(st: State) -> (Vec<u64>, usize) {
     let pick = Lazy::new(|| pick_device(s));
 
@@ -91,13 +110,13 @@ fn pick_device(st: State) -> (Vec<u64>, usize) {
         _ => match *min_pos_pointer {
             Some(a) => (st.devices.iter()
                                   .enumerate()
-                                  .map(|(i, x)| if i == (a + st.device_pointer) { *min + *new_idle_time } else { x })
+                                  .map(|(i, x)| if i == (a + st.device_pointer) { &(*min + *new_idle_time) } else { x })
                                   .cloned()
                                   .collect(),
                         a + st.device_pointer + 1),
             None    => (st.buf.iter()
                                   .enumerate()
-                                  .map(|(i, x)| if i == *min_pos.unwrap() { *min + *new_idle_time } else { x })
+                                  .map(|(i, x)| if i == *min_pos.unwrap() { &(*min + *new_idle_time) } else { x })
                                   .cloned()
                                   .collect(),
                         *min_pos.unwrap() + 1),
@@ -106,7 +125,7 @@ fn pick_device(st: State) -> (Vec<u64>, usize) {
 }
 
 fn get_new_idle_time(st: State) {
-    -1 * st.average_device_cd * (rand::random::<f64>().ln()).round()
+    -1 * st.average_device_cd * (rand::random::<f64>().ln()).round() as u64
 }
 
 fn get_new_buffer(st: State) -> (Vec<Option<u64>>, usize) {
