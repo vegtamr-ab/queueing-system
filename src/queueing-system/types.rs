@@ -47,9 +47,3 @@ pub struct Simulation {
     pub current_event: SimulationEvent,
     pub current_time: u64,
 }
-
-pub struct Res {
-    pub deny_probability: f64,
-    pub average_time: f64,
-    pub usage_coefficient: f64,
-}

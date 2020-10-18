@@ -6,7 +6,7 @@ use types::*;
 use itertools::Itertools;
 use std::lazy::Lazy;
 
-fn simulator(s: Simulation) -> Simulation {
+pub fn simulator(s: Simulation) -> Simulation {
     let state = Lazy::new(|| get_new_state(s));
     let get_next_et = Lazy::new(|| get_next_event_and_time(*state));
 

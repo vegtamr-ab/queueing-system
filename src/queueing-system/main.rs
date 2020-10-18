@@ -36,7 +36,3 @@ fn get_ideal_n(cl: ConfidenceLevel, n: i32, mut pd: Option<f64>) -> i32 {
     } */
     0
 }
-
-fn simulate(n: i32, sources_count: u32, devices_count: u32, source_cooldown: f64, time_to_process: f64) -> Res {
-
-}
