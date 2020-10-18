@@ -24,7 +24,7 @@ fn get_new_state(s: Simulation) -> State {
     let arrival_time = Lazy::new(|| get_new_arrival_time(st));
     let idle_time = Lazy::new(|| get_new_idle_time(st));
     let new_sources = Lazy::new(|| update_sources(st, arrival_time));
-    let new_devices = Lazy::new(|| update_devices(st, idle_time);
+    let new_devices = Lazy::new(|| update_devices(st, idle_time));
     let new_buffer = Lazy::new(|| update_buffer(st));
     let new_denied = Lazy::new(|| update_denied(st));
     let new_buffer_time = Lazy::new(|| update_buffer_time(s));
