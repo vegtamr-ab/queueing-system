@@ -11,14 +11,14 @@ pub enum ConfidenceLevel {
     VeryHigh = 1,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum SimulationEvent {
     NewRequest,
     ProcessRequest,
     StopSimulation,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct State {
     pub sources: Vec<u64>,                 //time of next arrival
     pub max_sources: usize,
@@ -33,6 +33,7 @@ pub struct State {
     pub next_idle_at: u64,
     pub next_any_idle_at: u64,
     pub next_arrival_at: u64,
+    pub requests_processed: u32,
     pub requests_left: u32,
     pub requests_denied: u32,
     pub total_time_in_buffer: u64,
@@ -40,7 +41,7 @@ pub struct State {
     pub total_time_spent_in_system: u64,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Simulation {
     pub state: State,
     pub current_event: SimulationEvent,

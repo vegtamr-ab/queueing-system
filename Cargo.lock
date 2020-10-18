@@ -1013,7 +1013,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "queueing-model"
+name = "queueing-system"
 version = "0.1.0"
 dependencies = [
  "druid",
