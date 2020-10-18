@@ -18,6 +18,8 @@ fn simulator(s: Simulation) -> Simulation {
 }
 
 fn get_new_state(s: Simulation) -> State {
+    let new_buffer = lazy!(get_new_buffer(st));
+
     match s.current_event {
         SimulationEvent::StopSimulation => s.state,
         SimulationEvent::NewRequest => State {
@@ -26,8 +28,8 @@ fn get_new_state(s: Simulation) -> State {
             devices: s.state.devices,
             device_pointer: s.state.device_pointer,
             max_devices: s.state.max_devices,
-            buf: Vec::new(),
-            buf_pointer: 0,
+            buf: *new_buffer.0,
+            buf_pointer: *new_buffer.1,
             buf_max_length: s.state.buf_max_length,
             next_idle_at: s.state.devices.iter().max().expect("No devices"),
             next_any_idle_at: s.state.devices.iter().min().expect("No devices"),
@@ -43,8 +45,8 @@ fn get_new_state(s: Simulation) -> State {
             devices: Vec::new(),
             device_pointer: 0,
             max_devices: s.state.max_devices,
-            buf: Vec::new(),
-            buf_pointer: 0,
+            buf: *new_buffer.0,
+            buf_pointer: *new_buffer.1,
             buf_max_length: s.state.buf_max_length,
             next_idle_at: s.state.devices.iter().max().expect("No devices"),
             next_any_idle_at: s.state.devices.iter().min().expect("No devices"),
