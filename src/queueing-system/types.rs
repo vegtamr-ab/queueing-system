@@ -22,13 +22,13 @@ pub enum SimulationEvent {
 #[derive(Eq)]
 pub struct State {
     pub sources: Vec<u64>,                 //time of next arrival
-    pub max_sources: u32,
+    pub max_sources: usize,
     pub devices: Vec<u64>,                 //time of next idle state
-    pub device_pointer: u32,
-    pub max_devices: u32,
+    pub device_pointer: usize,
+    pub max_devices: usize,
     pub buf: Vec<Option<u64>>,             //time of arrival
-    pub buf_pointer: u32,
-    pub buf_max_length: u32,
+    pub buf_pointer: usize,
+    pub buf_max_length: usize,
     pub next_idle_at: u64,
     pub next_any_idle_at: u64,
     pub next_arrival_at: u64,

@@ -61,13 +61,15 @@ fn get_new_state(s: Simulation) -> State {
     }
 }
 
-fn get_new_buffer(st: State) -> (Vec<Option<u64>>, u32) {
+fn get_new_buffer(st: State) -> (Vec<Option<u64>>, usize) {
+    let max = lazy!(st.buf.iter().max.unwrap());
+
     match st.next_arrival_at.cmp(&st.next_any_idle_at) {
         Less if st.buf.iter().all(|x| x.is_some()) => (),
         Less                                       => (),
         _ if st.buf.iter().all(|x| x.is_none())    => (st.buf, st.buf_pointer),
         _                                          => (st.buf.iter()
-                                                             .filter(|&x| x != st.buf.iter().max().unwrap())
+                                                             .map(|x| if x == *max { &None } else { x })
                                                              .cloned()
                                                              .collect(),
                                                        st.buf_pointer),
@@ -75,7 +77,17 @@ fn get_new_buffer(st: State) -> (Vec<Option<u64>>, u32) {
 }
 
 fn add_to_buffer(st: State) -> Vec<Option<u64>> {
-    Vec::new()
+    let pos = lazy!(&st.buf[st.buf_pointer..].iter().position(|x| x.is_none()));
+    let pos_initial = lazy!(st.buf.iter().position(|x| x.is_none()));
+
+    match *pos {
+        Some(a) => st.buf.iter()
+                         .enumerate()
+                         .map(|(i, x)| if i == (a + st.buf_pointer) { &Some(st.next_arrival_at) } else { x })
+                         .cloned()
+                         .collect(),
+        None => ,
+    }
 }
 
 fn get_next_event_and_time(st: State) -> (SimulationEvent, u64) {
