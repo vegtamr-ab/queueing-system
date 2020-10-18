@@ -8,12 +8,7 @@ fn simulator(s: Simulation) -> Simulation {
 
     match s.current_event {
         SimulationEvent::StopSimulation => s,
-        SimulationEvent::NewRequest => Simulation {
-            state: *state,
-            current_event: get_next_event_and_time(*state).0,
-            current_time: get_next_event_and_time(*state).1,
-        },
-        SimulationEvent::ProcessRequest => Simulation {
+        _ => Simulation {
             state: *state,
             current_event: get_next_event_and_time(*state).0,
             current_time: get_next_event_and_time(*state).1,
