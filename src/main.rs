@@ -1,3 +1,8 @@
+#![feature(once_cell)]
+mod queueing_system;
+
+use queueing_system::*;
+
 use druid::{AppLauncher, WindowDesc, Widget, PlatformError};
 use druid::widget::{Label, Flex, Padding, Align};
 
@@ -17,7 +22,6 @@ fn build_ui() -> impl Widget<()> {
                 1.0))
 }
 
-fn main() -> Result<(), PlatformError> {
-    AppLauncher::with_window(WindowDesc::new(build_ui)).launch(())?;
-    Ok(())
+fn main() {
+
 }

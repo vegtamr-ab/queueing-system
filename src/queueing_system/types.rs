@@ -11,15 +11,14 @@ pub enum ConfidenceLevel {
     VeryHigh = 1,
 }
 
-#[derive(Copy, Clone, Eq)]
+#[derive(Copy, Clone)]
 pub enum SimulationEvent {
     NewRequest,
     ProcessRequest,
-    ExtendBuffer,
     StopSimulation,
 }
 
-#[derive(Eq)]
+#[derive(Clone)]
 pub struct State {
     pub sources: Vec<u64>,                 //time of next arrival
     pub max_sources: usize,
@@ -41,7 +40,7 @@ pub struct State {
     pub total_time_spent_in_system: u64,
 }
 
-#[derive(Eq)]
+#[derive(Clone)]
 pub struct Simulation {
     pub state: State,
     pub current_event: SimulationEvent,
