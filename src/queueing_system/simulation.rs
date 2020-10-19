@@ -81,7 +81,7 @@ fn get_new_arrival_time(s: &Simulation) -> u64 {
     if rand::random() {
         s.average_arrival_cd + (rand::random::<f64>() * s.average_arrival_cd as f64 * 0.1).round() as u64
     } else {
-        (s.average_arrival_cd - (rand::random::<f64>() * s.average_arrival_cd as f64 * 0.1).round()).abs() as u64
+        s.average_arrival_cd - (rand::random::<f64>() * s.average_arrival_cd as f64 * 0.1).round().abs() as u64
     }
 }
 
