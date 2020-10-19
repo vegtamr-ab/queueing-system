@@ -71,10 +71,10 @@ fn new_sources(s: &Simulation, new_arrival_time: u64) -> Vec<u64> {
     let new_arrival = Lazy::new(|| *min + new_arrival_time);
 
     s.state.sources.iter()
-              .enumerate()
-              .map(|(i, x)| if i == min_pos.unwrap() { &new_arrival } else { x })
-              .cloned()
-              .collect()
+                   .enumerate()
+                   .map(|(i, x)| if i == min_pos.unwrap() { &new_arrival } else { x })
+                   .cloned()
+                   .collect()
 }
 
 fn get_new_arrival_time(s: &Simulation) -> u64 {
@@ -102,16 +102,16 @@ fn pick_device(s: &Simulation, new_idle_time: u64) -> (Vec<u64>, usize) {
 
     match *free_pos {
         Some(a) => (s.state.devices.iter()
-                                .enumerate()
-                                .map(|(i, x)| if i == (a + s.state.device_pointer) { &new_idle } else { x })
-                                .cloned()
-                                .collect(),
+                                   .enumerate()
+                                   .map(|(i, x)| if i == (a + s.state.device_pointer) { &new_idle } else { x })
+                                   .cloned()
+                                   .collect(),
                     a + s.state.device_pointer + 1),
         None    => (s.state.devices.iter()
-                                .enumerate()
-                                .map(|(i, x)| if i == free_pos_initial.unwrap() { &new_idle } else { x })
-                                .cloned()
-                                .collect(),
+                                   .enumerate()
+                                   .map(|(i, x)| if i == free_pos_initial.unwrap() { &new_idle } else { x })
+                                   .cloned()
+                                   .collect(),
                     free_pos_initial.unwrap() + 1),
     }
 }
@@ -129,16 +129,16 @@ fn update_buffer(s: &Simulation) -> (Vec<Option<u64>>, usize) {
 
     match s.current_event {
         SimulationEvent::PutNewRequestToFullBuffer => (s.state.buf.iter()
-                                                             .map(|x| if x == *min { &some_arrival } else { x })
-                                                             .cloned()
-                                                             .collect(),
+                                                                  .map(|x| if x == *min { &some_arrival } else { x })
+                                                                  .cloned()
+                                                                  .collect(),
                                                        min_pos.unwrap() + 1),
         SimulationEvent::PutNewRequestToBuffer     => (add.0.clone(), add.1),
         SimulationEvent::ProcessNewRequest         => (s.state.buf.clone(), s.state.buf_pointer),
         SimulationEvent::ProcessRequestFromBuffer  => (s.state.buf.iter()
-                                                             .map(|x| if x == *max { &None } else { x })
-                                                             .cloned()
-                                                             .collect(),
+                                                                  .map(|x| if x == *max { &None } else { x })
+                                                                  .cloned()
+                                                                  .collect(),
                                                        s.state.buf_pointer),
         SimulationEvent::StopSimulation            => (s.state.buf.clone(), s.state.buf_pointer),
     } 
@@ -151,16 +151,16 @@ fn add_to_buffer(s: &Simulation) -> (Vec<Option<u64>>, usize) {
 
     match *pos {
         Some(a) => (s.state.buf.iter()
-                         .enumerate()
-                         .map(|(i, x)| if i == (a + s.state.buf_pointer) { &some_arrival } else { x })
-                         .cloned()
-                         .collect(),
+                               .enumerate()
+                               .map(|(i, x)| if i == (a + s.state.buf_pointer) { &some_arrival } else { x })
+                               .cloned()
+                               .collect(),
                     a + s.state.buf_pointer + 1),
         None    => (s.state.buf.iter()
-                         .enumerate()
-                         .map(|(i, x)| if i == pos_initial.unwrap() { &some_arrival } else { x })
-                         .cloned()
-                         .collect(),
+                               .enumerate()
+                               .map(|(i, x)| if i == pos_initial.unwrap() { &some_arrival } else { x })
+                               .cloned()
+                               .collect(),
                     pos_initial.unwrap() + 1),
     }
 }
