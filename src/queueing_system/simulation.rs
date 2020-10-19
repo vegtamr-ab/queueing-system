@@ -206,9 +206,9 @@ fn get_next_event_and_time(st: &State) -> (SimulationEvent, u64) {
     } else {
         match st.next_arrival_at.cmp(&st.next_any_idle_at) {
             Less if st.buf.iter().all(|x| x.is_some()) => (SimulationEvent::PutNewRequestToFullBuffer, st.next_arrival_at),
-            Less                                                     => (SimulationEvent::PutNewRequestToBuffer, st.next_arrival_at),
+            Less                                       => (SimulationEvent::PutNewRequestToBuffer, st.next_arrival_at),
             _ if st.buf.iter().all(|x| x.is_none())    => (SimulationEvent::ProcessNewRequest, st.next_arrival_at),
-            _                                                        => (SimulationEvent::ProcessRequestFromBuffer, st.next_any_idle_at),
+            _                                          => (SimulationEvent::ProcessRequestFromBuffer, st.next_any_idle_at),
         }
     }
 }
