@@ -13,23 +13,20 @@ pub enum ConfidenceLevel {
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum SimulationEvent {
-    NewRequest,
-    ProcessRequest,
+    PutNewRequestToFullBuffer,
+    PutNewRequestToBuffer,
+    ProcessNewRequest,
+    ProcessRequestFromBuffer,
     StopSimulation,
 }
 
 #[derive(Clone, Debug)]
 pub struct State {
     pub sources: Vec<u64>,                 //time of next arrival
-    pub max_sources: usize,
-    pub average_arrival_cd: u64,
     pub devices: Vec<u64>,                 //time of next idle state
     pub device_pointer: usize,
-    pub max_devices: usize,
-    pub average_device_cd: u64,
     pub buf: Vec<Option<u64>>,             //time of arrival
     pub buf_pointer: usize,
-    pub buf_max_length: usize,
     pub next_idle_at: u64,
     pub next_any_idle_at: u64,
     pub next_arrival_at: u64,
@@ -43,7 +40,16 @@ pub struct State {
 
 #[derive(Clone, Debug)]
 pub struct Simulation {
+    /* BEGIN OF USER INPUT */
+    pub max_sources: usize,
+    pub max_devices: usize,
+    pub max_buf_length: usize,
+    pub average_arrival_cd: u64,
+    pub average_device_cd: u64,
+    /* END   OF USER INPUT */
+    /* BEGIN OF SIM STATE  */
     pub state: State,
     pub current_event: SimulationEvent,
     pub current_time: u64,
+    /* END   OF SIM STATE  */
 }
