@@ -96,31 +96,23 @@ fn update_devices(s: &Simulation, new_idle_time: u64) -> (Vec<u64>, usize) {
 }
 
 fn pick_device(s: &Simulation, new_idle_time: u64) -> (Vec<u64>, usize) {
-    let min = Lazy::new(|| s.state.devices.iter().min().unwrap());
-    let min_pos = Lazy::new(|| s.state.devices.iter().position(|x| x == *min));
-    let min_pos_pointer = Lazy::new(|| (&s.state.devices[s.state.device_pointer..]).iter().position(|x| x == *min));
+    let free_pos = Lazy::new(|| (&s.state.devices[s.state.device_pointer..]).iter().position(|x| *x <= s.current_time));
+    let free_pos_initial = Lazy::new(|| s.state.devices.iter().position(|x| *x <= s.current_time));
     let new_idle = Lazy::new(|| s.current_time + new_idle_time);
 
-    match s.state.devices.iter().filter(|x| *x == *min).exactly_one() {
-        Ok(_a) => (s.state.devices.iter()
-                              .map(|x| if x == *min { &new_idle } else { x })
-                              .cloned()
-                              .collect(),
-                    min_pos.unwrap() + 1),
-        _ => match *min_pos_pointer {
-            Some(a) => (s.state.devices.iter()
-                                  .enumerate()
-                                  .map(|(i, x)| if i == (a + s.state.device_pointer) { &new_idle } else { x })
-                                  .cloned()
-                                  .collect(),
-                        a + s.state.device_pointer + 1),
-            None    => (s.state.devices.iter()
-                                  .enumerate()
-                                  .map(|(i, x)| if i == min_pos.unwrap() { &new_idle } else { x })
-                                  .cloned()
-                                  .collect(),
-                        min_pos.unwrap() + 1),
-        },
+    match *free_pos {
+        Some(a) => (s.state.devices.iter()
+                                .enumerate()
+                                .map(|(i, x)| if i == (a + s.state.device_pointer) { &new_idle } else { x })
+                                .cloned()
+                                .collect(),
+                    a + s.state.device_pointer + 1),
+        None    => (s.state.devices.iter()
+                                .enumerate()
+                                .map(|(i, x)| if i == free_pos_initial.unwrap() { &new_idle } else { x })
+                                .cloned()
+                                .collect(),
+                    free_pos_initial.unwrap() + 1),
     }
 }
 
