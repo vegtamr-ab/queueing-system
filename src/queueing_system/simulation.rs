@@ -164,7 +164,7 @@ fn add_to_buffer(s: &Simulation) -> (Vec<Option<u64>>, usize) {
     }
 }
 
-fn update_requests(s: &Simulation) -> (u32, u32) {
+fn update_requests(s: &Simulation) -> (usize, usize) {
     match s.current_event {
         SimulationEvent::PutNewRequestToFullBuffer => (s.state.requests_processed, s.state.requests_left - 1),
         SimulationEvent::PutNewRequestToBuffer     => (s.state.requests_processed, s.state.requests_left), 
@@ -172,7 +172,7 @@ fn update_requests(s: &Simulation) -> (u32, u32) {
     }
 }
 
-fn update_denied(s: &Simulation) -> u32 {
+fn update_denied(s: &Simulation) -> usize {
     if let SimulationEvent::PutNewRequestToFullBuffer = s.current_event {
         s.state.requests_denied + 1
     } else {

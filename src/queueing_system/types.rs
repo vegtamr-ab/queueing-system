@@ -11,6 +11,15 @@ pub enum ConfidenceLevel {
     VeryHigh = 1,
 }
 
+#[derive(Copy, Clone)]
+pub struct UserInput {
+    pub n_src: usize,
+    pub n_dvc: usize,
+    pub n_buf: usize,
+    pub avg_src: u64,
+    pub avg_dvc: u64,
+}
+
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum SimulationEvent {
     PutNewRequestToFullBuffer,
@@ -30,9 +39,9 @@ pub struct State {
     pub next_idle_at: u64,
     pub next_any_idle_at: u64,
     pub next_arrival_at: u64,
-    pub requests_processed: u32,
-    pub requests_left: u32,
-    pub requests_denied: u32,
+    pub requests_processed: usize,
+    pub requests_left: usize,
+    pub requests_denied: usize,
     pub total_time_in_buffer: u64,
     pub total_time_devices_busy: u64,
     pub total_time_spent_in_system: u64,

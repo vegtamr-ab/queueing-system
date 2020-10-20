@@ -1,7 +1,7 @@
 #![feature(once_cell)]
 mod queueing_system;
 
-use queueing_system::simulation::*;
+use queueing_system::analytics::*;
 use queueing_system::types::*;
 
 use druid::{AppLauncher, WindowDesc, Widget, PlatformError};
@@ -24,39 +24,16 @@ fn build_ui() -> impl Widget<()> {
 }
 
 fn main() {
-    let n_src: usize = 5;
-    let n_dvc: usize = 10;
-    let n_buf: usize = 3;
-    let avg_src: u64 = 320;
-    let avg_dvc: u64 = 560;
-    let st = State {
-        sources: vec![0; n_src],
-        max_sources: n_src,
-        average_arrival_cd: avg_src,
-        devices: vec![0; n_dvc],
-        device_pointer: 0,
-        max_devices: n_dvc,
-        average_device_cd: avg_dvc,
-        buf: vec![None; n_buf],
-        buf_pointer: 0,
-        buf_max_length: n_buf,
-        next_idle_at: 0,
-        next_any_idle_at: 0,
-        next_arrival_at: 0,
-        requests_processed: 0,
-        requests_left: 100,
-        requests_denied: 0,
-        total_time_in_buffer: 0,
-        total_time_devices_busy: 0,
-        total_time_spent_in_system: 0,
+    let inp = UserInput {
+        n_src: 2,
+        n_dvc: 8,
+        n_buf: 3,
+        avg_src: 320,
+        avg_dvc: 560,
     };
-    let mut s = Simulation {
-        state: st,
-        current_event: SimulationEvent::NewRequest,
-        current_time: 0,
-    };
-    while s.current_event != SimulationEvent::StopSimulation {
-        s = simulator(&s);
-    }
-    println!("{:?}", s);
+
+    let (final_sim, final_n) = get_res(ConfidenceLevel::Low, 100, inp, None);
+    println!("{:?}", final_sim);
+    println!("{:?}", final_n);
+    println!("{:?}", final_sim.state.requests_denied as f64 / (final_sim.state.requests_denied + final_sim.state.requests_processed) as f64);
 }
