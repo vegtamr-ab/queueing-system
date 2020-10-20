@@ -1,8 +1,7 @@
 #![feature(once_cell)]
 mod queueing_system;
 
-use queueing_system::analytics::*;
-use queueing_system::types::*;
+use queueing_system::{analytics, statistics, types};
 
 use druid::{AppLauncher, WindowDesc, Widget, PlatformError};
 use druid::widget::{Label, Flex, Padding, Align};
@@ -24,16 +23,18 @@ fn build_ui() -> impl Widget<()> {
 }
 
 fn main() {
-    let inp = UserInput {
-        n_src: 2,
+    let inp = types::UserInput {
+        n_src: 5,
         n_dvc: 8,
         n_buf: 3,
         avg_src: 320,
         avg_dvc: 560,
     };
 
-    let (final_sim, final_n) = get_res(ConfidenceLevel::Low, 100, inp, None);
-    println!("{:?}", final_sim);
+    let (final_sim, final_n) = analytics::get_res(types::ConfidenceLevel::Low, 100, inp, None);
+    //println!("{:?}", final_sim);
     println!("{:?}", final_n);
-    println!("{:?}", final_sim.state.requests_denied as f64 / (final_sim.state.requests_denied + final_sim.state.requests_processed) as f64);
+    println!("{}: deny prob", statistics::deny_probability(&final_sim));
+    println!("{}: avg time in sys", statistics::average_request_time_in_system(&final_sim));
+    println!("{}: device coeff", statistics::usage_coefficient(&final_sim));
 }

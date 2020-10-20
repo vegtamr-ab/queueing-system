@@ -1,4 +1,5 @@
 use super::simulation::*;
+use super::statistics::*;
 use super::types::*;
 
 fn get_student_value(cl: ConfidenceLevel) -> f64 {
@@ -53,10 +54,6 @@ fn simulation_cycle(s: &Simulation) -> Simulation {
     sim
 }
 
-fn deny_probability(s: &Simulation) -> f64 {
-    s.state.requests_denied as f64 / (s.state.requests_processed + s.state.requests_denied) as f64
-}
-
 pub fn get_res(cl: ConfidenceLevel, n: usize, inp: UserInput, sim: Option<Simulation>) -> (Simulation, usize) {
     let s = match sim {
         Some(a) => a,
@@ -66,7 +63,7 @@ pub fn get_res(cl: ConfidenceLevel, n: usize, inp: UserInput, sim: Option<Simula
     let new_n = if p != 0.0 {
         number_of_entries(cl, p)
     } else {
-        n * 10
+        n
     };
     let new_s = simulation_cycle(&base_simulation(new_n, inp));
     let new_p = deny_probability(&new_s);
