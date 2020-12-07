@@ -3,12 +3,11 @@
     Medium - 95%
     High - 99%
     Very High - 99.9% */
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum ConfidenceLevel {
-    Low = 100,
-    Medium = 50,
-    High = 10,
-    VeryHigh = 1,
+    Standard = 100,
+    High = 50,
+    VeryHigh = 10,
 }
 
 #[derive(Copy, Clone)]
@@ -18,6 +17,12 @@ pub struct UserInput {
     pub n_buf: usize,
     pub avg_src: u64,
     pub avg_dvc: u64,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Request {
+    pub time_arrived: u64,
+    pub src_num: usize,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -34,7 +39,7 @@ pub struct State {
     pub sources: Vec<u64>,                 //time of next arrival
     pub devices: Vec<u64>,                 //time of next idle state
     pub device_pointer: usize,
-    pub buf: Vec<Option<u64>>,             //time of arrival
+    pub buf: Vec<Option<Request>>,             //time of arrival
     pub buf_pointer: usize,
     pub next_idle_at: u64,
     pub next_any_idle_at: u64,
@@ -45,6 +50,14 @@ pub struct State {
     pub total_time_in_buffer: u64,
     pub total_time_devices_busy: u64,
     pub total_time_spent_in_system: u64,
+    /* INDIVIDUAL SOURCES STATISTICS */
+    pub s_requests_count: Vec<usize>,
+    pub s_next_arrival: usize,
+    pub s_requests_processed: Vec<usize>,
+    pub s_requests_denied: Vec<usize>,
+    pub s_time_spent_in_system: Vec<u64>,
+    pub s_time_spent_in_buffer: Vec<u64>,
+    pub s_time_devices_busy: Vec<u64>,
 }
 
 #[derive(Clone, Debug)]
@@ -61,4 +74,32 @@ pub struct Simulation {
     pub current_event: SimulationEvent,
     pub current_time: u64,
     /* END   OF SIM STATE  */
+}
+
+impl ConfidenceLevel {
+    pub const ALL: [ConfidenceLevel; 3] = [
+        ConfidenceLevel::Standard,
+        ConfidenceLevel::High,
+        ConfidenceLevel::VeryHigh,
+    ];
+}
+
+impl std::fmt::Display for ConfidenceLevel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                ConfidenceLevel::Standard => "Standard (0.9)",
+                ConfidenceLevel::High     => "High (0.95)",
+                ConfidenceLevel::VeryHigh => "High (0.99)",
+            }
+        )
+    }
+}
+
+impl Default for ConfidenceLevel {
+    fn default() -> ConfidenceLevel {
+        ConfidenceLevel::Standard
+    }
 }

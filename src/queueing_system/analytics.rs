@@ -4,10 +4,9 @@ use super::types::*;
 
 fn get_student_value(cl: ConfidenceLevel) -> f64 {
     match cl {
-        ConfidenceLevel::Low => 1.6649,
-        ConfidenceLevel::Medium => 1.96,
-        ConfidenceLevel::High => 2.5758,
-        ConfidenceLevel::VeryHigh => 3.2905,
+        ConfidenceLevel::Standard => 1.6649,
+        ConfidenceLevel::High => 1.96,
+        ConfidenceLevel::VeryHigh => 2.5758,
     }
 }
 
@@ -40,6 +39,13 @@ fn base_simulation(n: usize, inp: UserInput) -> Simulation {
             total_time_in_buffer: 0,
             total_time_devices_busy: 0,
             total_time_spent_in_system: 0,
+            s_requests_count: vec![0; inp.n_src],
+            s_next_arrival: 0,
+            s_requests_processed: vec![0; inp.n_src],
+            s_requests_denied: vec![0; inp.n_src],
+            s_time_spent_in_system: vec![0; inp.n_src],
+            s_time_spent_in_buffer: vec![0; inp.n_src],
+            s_time_devices_busy: vec![0; inp.n_src],
         },
         current_event: SimulationEvent::ProcessNewRequest,
         current_time: 0,
