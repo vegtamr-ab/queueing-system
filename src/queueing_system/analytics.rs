@@ -52,27 +52,35 @@ fn base_simulation(n: usize, inp: UserInput) -> Simulation {
     }
 }
 
-fn simulation_cycle(s: &Simulation) -> Simulation {
+fn simulation_cycle(s: &Simulation) -> Vec<Simulation> {
+    let mut simulations: Vec<Simulation> = Vec::new();
+    let five_percent = (s.state.requests_left as f64 * 0.05).round() as usize;
+
     let mut sim = s.clone();
     while sim.current_event != SimulationEvent::StopSimulation {
         sim = simulator(&sim);
+        if (sim.state.requests_left % five_percent == 0)
+            && (sim.current_event != SimulationEvent::PutNewRequestToBuffer) {
+            println!("{}", sim.state.requests_left);
+            simulations.push(sim.clone());
+        }
     }
-    sim
+    simulations
 }
 
-pub fn get_res(cl: ConfidenceLevel, n: usize, inp: UserInput, sim: Option<Simulation>) -> (Simulation, usize) {
+pub fn get_res(cl: ConfidenceLevel, n: usize, inp: UserInput, sim: Option<Vec<Simulation>>) -> (Vec<Simulation>, usize) {
     let s = match sim {
         Some(a) => a,
         None => simulation_cycle(&base_simulation(n, inp)), 
     };
-    let p = deny_probability(&s);
+    let p = deny_probability(&s[s.len() - 1]);
     let new_n = if p != 0.0 {
         number_of_entries(cl, p)
     } else {
         n
     };
     let new_s = simulation_cycle(&base_simulation(new_n, inp));
-    let new_p = deny_probability(&new_s);
+    let new_p = deny_probability(&new_s[new_s.len() - 1]);
 
     if (new_p - p).abs() > (p * 0.1) {
         get_res(cl, new_n, inp, Some(new_s))
