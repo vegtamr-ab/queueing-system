@@ -43,12 +43,18 @@ pub fn build_ui(application: &gtk::Application) {
             simulations.remove(0);
         }
 
+        let mut x_marks: Vec<f64> = vec![0.0; 21];
+        x_marks = x_marks.iter()
+                         .enumerate()
+                         .map(|(i, _)| i as f64)
+                         .collect();
+
         let mut deny_probs: Vec<f64> = simulations.iter()
                                                 .map(|x| statistics::deny_probability(x))
                                                 .collect();
         deny_probs.insert(0, 0.);
 
-        construct_and_save(&deny_probs);
+        construct_and_save(&x_marks, &deny_probs, "Deny prob", "% of reqs processed", "Deny prob");
 
         let image: Image = builder.get_object("auto_denygraph").expect("No");
         image.set_from_file("target/plot/1.png");
