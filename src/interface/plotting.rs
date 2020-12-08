@@ -1,6 +1,6 @@
 use gnuplot::*;
 
-pub fn construct_and_save(xdata: &Vec<f64>, ydata: &Vec<f64>, title: &str, xlabel: &str, ylabel: &str) {
+pub fn construct_and_save(xdata: &Vec<f64>, ydata: &Vec<f64>, title: &str, xlabel: &str, ylabel: &str, filename: &str) {
     let mut fg = Figure::new();
     fg.axes2d()
         .set_title(title, &[])
@@ -12,5 +12,5 @@ pub fn construct_and_save(xdata: &Vec<f64>, ydata: &Vec<f64>, title: &str, xlabe
             ydata.as_slice(),
             &[],
         );
-    fg.save_to_png("target/plot/1.png",  800, 600);
+    fg.save_to_png(filename,  800, 600);
 }
