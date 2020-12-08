@@ -9,7 +9,7 @@ pub fn average_request_time_in_system(s: &Simulation) -> f64 {
 }
 
 pub fn usage_coefficient(s: &Simulation) -> f64 {
-    s.state.total_time_devices_busy as f64 / (s.max_devices as u64 * s.current_time) as f64
+    s.state.total_time_devices_busy as f64 / (s.max_devices as u64 * s.state.next_idle_at) as f64
 }
 
 pub fn src_deny_probability(s: &Simulation, src_num: usize) -> f64 {
