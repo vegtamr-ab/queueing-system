@@ -20,6 +20,8 @@
     </data>
   </object>
   <object class="GtkWindow" id="mainwindow">
+    <property name="width-request">1080</property>
+    <property name="height-request">660</property>
     <property name="can-focus">False</property>
     <child>
       <object class="GtkLayout" id="mainlayout">
@@ -196,17 +198,15 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTextView" id="res">
-            <property name="width-request">500</property>
-            <property name="height-request">400</property>
+          <object class="GtkImage" id="auto_denygraph">
+            <property name="width-request">800</property>
+            <property name="height-request">600</property>
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="margin-right">551</property>
-            <property name="margin-bottom">403</property>
+            <property name="can-focus">False</property>
           </object>
           <packing>
-            <property name="x">260</property>
-            <property name="y">40</property>
+            <property name="x">270</property>
+            <property name="y">20</property>
           </packing>
         </child>
       </object>
