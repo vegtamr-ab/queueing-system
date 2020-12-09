@@ -2,6 +2,11 @@
 <!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
+  <object class="GtkImage" id="clear">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">gtk-undelete-rtl</property>
+  </object>
   <object class="GtkListStore" id="clevels">
     <columns>
       <!-- column-name name -->
@@ -20,9 +25,12 @@
     </data>
   </object>
   <object class="GtkWindow" id="mainwindow">
-    <property name="width-request">1080</property>
-    <property name="height-request">660</property>
+    <property name="width-request">1120</property>
+    <property name="height-request">670</property>
     <property name="can-focus">False</property>
+    <property name="resizable">False</property>
+    <property name="default-width">1100</property>
+    <property name="default-height">670</property>
     <child>
       <object class="GtkLayout" id="mainlayout">
         <property name="visible">True</property>
@@ -186,7 +194,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="go">
+          <object class="GtkButton" id="sim_button">
             <property name="label" translatable="yes">Simulate</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
@@ -194,7 +202,7 @@
           </object>
           <packing>
             <property name="x">20</property>
-            <property name="y">500</property>
+            <property name="y">490</property>
           </packing>
         </child>
         <child>
@@ -209,7 +217,277 @@
             <property name="y">20</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkImage" id="auto_reqtimegraph">
+            <property name="width-request">800</property>
+            <property name="height-request">600</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">270</property>
+            <property name="y">20</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="auto_usagegraph">
+            <property name="width-request">800</property>
+            <property name="height-request">600</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">270</property>
+            <property name="y">20</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="deny_radio">
+            <property name="label" translatable="yes">Deny probability</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="active">True</property>
+            <property name="draw-indicator">True</property>
+          </object>
+          <packing>
+            <property name="x">300</property>
+            <property name="y">630</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="reqtime_radio">
+            <property name="label" translatable="yes">Average time request spent in system</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="active">True</property>
+            <property name="draw-indicator">True</property>
+            <property name="group">deny_radio</property>
+          </object>
+          <packing>
+            <property name="x">500</property>
+            <property name="y">630</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="usage_radio">
+            <property name="label" translatable="yes">Devices usage coefficient</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="active">True</property>
+            <property name="draw-indicator">True</property>
+            <property name="group">deny_radio</property>
+          </object>
+          <packing>
+            <property name="x">800</property>
+            <property name="y">630</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="src_button">
+            <property name="label" translatable="yes">Sources' individual statistics</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Shows incorrect data if needed checkbox wasn't active when simulating</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">625</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="test_button">
+            <property name="label" translatable="yes">Set test values</property>
+            <property name="width-request">92</property>
+            <property name="height-request">34</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Automatically set test values for upper fields</property>
+          </object>
+          <packing>
+            <property name="x">120</property>
+            <property name="y">490</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSwitch" id="gen_indsrc">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="tooltip-text" translatable="yes">(this option will slow down the simulation a lot
+given more sources)</property>
+          </object>
+          <packing>
+            <property name="x">150</property>
+            <property name="y">580</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="gen_indsrcl">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="tooltip-text" translatable="yes">(this option will slow down the simulation a lot
+given more sources)</property>
+            <property name="label" translatable="yes">Generate sources'
+individual statistics</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">575</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="clear_b">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Clear plot directory</property>
+            <property name="image">clear</property>
+            <property name="always-show-image">True</property>
+          </object>
+          <packing>
+            <property name="x">1077</property>
+            <property name="y">50</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="quit_b">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Quit application</property>
+            <property name="image">quit</property>
+            <property name="always-show-image">True</property>
+            <signal name="clicked" handler="gtk_main_quit" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">1077</property>
+            <property name="y">10</property>
+          </packing>
+        </child>
       </object>
     </child>
+  </object>
+  <object class="GtkImage" id="exitsrc">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">gtk-cancel</property>
+  </object>
+  <object class="GtkWindow" id="indsrcwindow">
+    <property name="width-request">840</property>
+    <property name="height-request">690</property>
+    <property name="can-focus">False</property>
+    <property name="resizable">False</property>
+    <property name="default-width">840</property>
+    <property name="default-height">690</property>
+    <property name="destroy-with-parent">True</property>
+    <child>
+      <object class="GtkLayout" id="indsrclayout">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <child>
+          <object class="GtkEntry" id="srcnum">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="input-purpose">number</property>
+          </object>
+          <packing>
+            <property name="x">130</property>
+            <property name="y">15</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="srcnuml">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Source number:</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">21</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="show_button">
+            <property name="label" translatable="yes">Show graphs</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+          </object>
+          <packing>
+            <property name="x">340</property>
+            <property name="y">15</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="indsrc_denygraph">
+            <property name="width-request">400</property>
+            <property name="height-request">300</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">70</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="indsrc_reqtimegraph">
+            <property name="width-request">400</property>
+            <property name="height-request">300</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">430</property>
+            <property name="y">70</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="indsrc_buftimegraph">
+            <property name="width-request">400</property>
+            <property name="height-request">300</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">380</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="indsrc_proctimegraph">
+            <property name="width-request">400</property>
+            <property name="height-request">300</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">430</property>
+            <property name="y">380</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="exit_src">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="image">exitsrc</property>
+          </object>
+          <packing>
+            <property name="x">790</property>
+            <property name="y">15</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkImage" id="quit">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">gtk-cancel</property>
   </object>
 </interface>
