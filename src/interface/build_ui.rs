@@ -7,7 +7,7 @@ use gtk::*;
 use crate::queueing_system::{analytics, statistics, types};
 
 use super::plotting::*;
-use std::fs;
+use std::{rc::Rc, cell::RefCell, fs};
 
 pub fn get_confidence(str: &str) -> Result<types::ConfidenceLevel, &str> {
     match str {
@@ -49,7 +49,10 @@ pub fn build_ui(application: &gtk::Application) {
     let reqtime_radio: RadioButton = builder.get_object("reqtime_radio").expect("NO");
     let usage_radio: RadioButton = builder.get_object("usage_radio").expect("NO");
 
+    let simulations: Rc<RefCell<Vec<types::Simulation>>> = Rc::new(RefCell::new(Vec::new()));
+
     let btn_bld = builder.clone();
+    let simulations_btn_gen = simulations.clone();
     sim_button.connect_clicked(clone!(@weak window => move |_| {
         let numsrc: Entry = btn_bld.get_object("numsrc").expect("Couldn't get numsrc");
         let numdvc: Entry = btn_bld.get_object("numdvc").expect("Couldn't get numdvc");
@@ -67,9 +70,9 @@ pub fn build_ui(application: &gtk::Application) {
         };
         let confidence_level = get_confidence(confidence.get_active_id().unwrap().as_str()).unwrap();
 
-        let (mut simulations, _) = analytics::get_res(confidence_level, 100, inp, None);
-        if simulations.len() == 21 {
-            simulations.remove(0);
+        *simulations_btn_gen.borrow_mut() = analytics::get_res(confidence_level, 100, inp, None).0;
+        if simulations_btn_gen.borrow().len() == 21 {
+            simulations_btn_gen.borrow_mut().remove(0);
         }
 
         let mut x_marks: Vec<f64> = vec![0.0; 21];
@@ -83,7 +86,7 @@ pub fn build_ui(application: &gtk::Application) {
         if !radio.get_active() {
             image.hide();
         }
-        let mut deny_probs: Vec<f64> = simulations.iter()
+        let mut deny_probs: Vec<f64> = simulations_btn_gen.borrow().iter()
                                                   .map(|x| statistics::deny_probability(x))
                                                   .collect();
         deny_probs.insert(0, 0.);
@@ -96,7 +99,7 @@ pub fn build_ui(application: &gtk::Application) {
         if !radio.get_active() {
             image.hide();
         }
-        let mut avgreq_times: Vec<f64> = simulations.iter()
+        let mut avgreq_times: Vec<f64> = simulations_btn_gen.borrow().iter()
                                                     .map(|x| statistics::average_request_time_in_system(x))
                                                     .collect();
         avgreq_times.insert(0, 0.);
@@ -109,58 +112,13 @@ pub fn build_ui(application: &gtk::Application) {
         if !radio.get_active() {
             image.hide();
         }
-        let mut usage_coeffs: Vec<f64> = simulations.iter()
+        let mut usage_coeffs: Vec<f64> = simulations_btn_gen.borrow().iter()
                                                 .map(|x| statistics::usage_coefficient(x))
                                                 .collect();
         usage_coeffs.insert(0, 0.);
 
         plot(&x_marks, &usage_coeffs, "Usage coeff", "% of reqs processed", "Usage coeff", "target/plot/auto_usage.png", 800, 600);
         image.set_from_file("target/plot/auto_usage.png");
-
-        let gen_indsrc: Switch = btn_bld.get_object("gen_indsrc").expect("NO");
-        if gen_indsrc.get_active() {
-            for i in 0..inp.n_src {
-                let mut src_deny_probs: Vec<f64> = simulations.iter()
-                                                        .map(|x| statistics::src_deny_probability(x, i))
-                                                        .collect();
-                src_deny_probs.insert(0, 0.);
-                plot(&x_marks, &src_deny_probs, "Deny prob", 
-                                                "% of reqs processed",
-                                                "Deny prob",
-                                                format!("target/plot/auto_src_deny{}.png", i).as_str(),
-                                                400, 300);
-                
-                let mut src_req_times: Vec<f64> = simulations.iter()
-                                                        .map(|x| statistics::src_avg_request_time_in_system(x, i))
-                                                        .collect();
-                src_req_times.insert(0, 0.);
-                plot(&x_marks, &src_req_times, "Avg req time in sys",
-                                            "% of reqs processed",
-                                            "Avg req time in sys",
-                                            format!("target/plot/auto_src_reqt{}.png", i).as_str(),
-                                            400, 300);
-
-                let mut src_buf_times: Vec<f64> = simulations.iter()
-                                                        .map(|x| statistics::src_avg_request_time_in_buffer(x, i))
-                                                        .collect();
-                src_buf_times.insert(0, 0.);
-                plot(&x_marks, &src_buf_times, "Avg req time in buf",
-                                            "% of reqs processed",
-                                            "Avg req time in buf",
-                                            format!("target/plot/auto_src_buft{}.png", i).as_str(),
-                                            400, 300);
-
-                let mut src_proc_times: Vec<f64> = simulations.iter()
-                                                        .map(|x| statistics::src_avg_devices_busy(x, i))
-                                                        .collect();
-                src_proc_times.insert(0, 0.);
-                plot(&x_marks, &src_proc_times, "Avg req time processing",
-                                                "% of reqs processed",
-                                                "Avg req time processing",
-                                                format!("target/plot/auto_src_proc{}.png", i).as_str(),
-                                                400, 300);
-            }
-        }
     }));
 
     let raddeny_bld = builder.clone();
@@ -210,21 +168,22 @@ pub fn build_ui(application: &gtk::Application) {
     }));
 
     let ind_src_button: Button = builder.get_object("src_button").expect("NO");
-    let srcopen_bld = builder.clone();
+    let ind_src_window: Window = builder.get_object("indsrcwindow").expect("Couldn't get");
+
+    let srcopen_window = ind_src_window.clone();
     ind_src_button.connect_clicked(clone!(@weak window => move |_| {
-        let ind_src_window: Window = srcopen_bld.get_object("indsrcwindow").expect("Couldn't get");
-        ind_src_window.show_all();
+        srcopen_window.show_all();
     }));
 
     let exit_src: Button = builder.get_object("exit_src").expect("NO");
-    let srcexit_bld = builder.clone();
+    let srcexit_window = ind_src_window.clone();
     exit_src.connect_clicked(clone!(@weak window => move |_| {
-        let ind_src_window: Window = srcexit_bld.get_object("indsrcwindow").expect("Couldn't get");
-        ind_src_window.hide();
+        srcexit_window.hide();
     }));
 
     let show_button: Button = builder.get_object("show_button").expect("NO");
     let shwbtn_bld = builder.clone();
+    let simulations_indsrc = simulations.clone();
     show_button.connect_clicked(clone!(@weak window => move |_| {
         let srcnum: Entry = shwbtn_bld.get_object("srcnum").expect("Couldn't get srcnum");
         let num = srcnum.get_text().as_str().parse::<usize>().unwrap();
@@ -233,6 +192,52 @@ pub fn build_ui(application: &gtk::Application) {
         let topr_image: Image = shwbtn_bld.get_object("indsrc_reqtimegraph").expect("NO");
         let btml_image: Image = shwbtn_bld.get_object("indsrc_buftimegraph").expect("NO");
         let btmr_image: Image = shwbtn_bld.get_object("indsrc_proctimegraph").expect("NO");
+
+        let mut x_marks: Vec<f64> = vec![0.0; 21];
+        x_marks = x_marks.iter()
+                         .enumerate()
+                         .map(|(i, _)| (i * 5) as f64)
+                         .collect();
+
+        let mut src_deny_probs: Vec<f64> = simulations_indsrc.borrow().iter()
+                                                .map(|x| statistics::src_deny_probability(x, num))
+                                                .collect();
+        src_deny_probs.insert(0, 0.);
+        plot(&x_marks, &src_deny_probs, "Deny prob",
+                                        "% of reqs processed",
+                                        "Deny prob",
+                                        format!("target/plot/auto_src_deny{}.png", num).as_str(),
+                                        400, 300);
+
+        let mut src_req_times: Vec<f64> = simulations_indsrc.borrow().iter()
+                                                .map(|x| statistics::src_avg_request_time_in_system(x, num))
+                                                .collect();
+        src_req_times.insert(0, 0.);
+        plot(&x_marks, &src_req_times, "Avg req time in sys",
+                                    "% of reqs processed",
+                                    "Avg req time in sys",
+                                    format!("target/plot/auto_src_reqt{}.png", num).as_str(),
+                                    400, 300);
+
+        let mut src_buf_times: Vec<f64> = simulations_indsrc.borrow().iter()
+                                                .map(|x| statistics::src_avg_request_time_in_buffer(x, num))
+                                                .collect();
+        src_buf_times.insert(0, 0.);
+        plot(&x_marks, &src_buf_times, "Avg req time in buf",
+                                    "% of reqs processed",
+                                    "Avg req time in buf",
+                                    format!("target/plot/auto_src_buft{}.png", num).as_str(),
+                                    400, 300);
+
+        let mut src_proc_times: Vec<f64> = simulations_indsrc.borrow().iter()
+                                                .map(|x| statistics::src_avg_devices_busy(x, num))
+                                                .collect();
+        src_proc_times.insert(0, 0.);
+        plot(&x_marks, &src_proc_times, "Avg req time processing",
+                                        "% of reqs processed",
+                                        "Avg req time processing",
+                                        format!("target/plot/auto_src_proc{}.png", num).as_str(),
+                                        400, 300);
 
         topl_image.set_from_file(format!("target/plot/auto_src_deny{}.png", num).as_str());
         topr_image.set_from_file(format!("target/plot/auto_src_reqt{}.png", num).as_str());
