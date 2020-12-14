@@ -186,62 +186,67 @@ pub fn build_ui(application: &gtk::Application) {
     let simulations_indsrc = simulations.clone();
     show_button.connect_clicked(clone!(@weak window => move |_| {
         let srcnum: Entry = shwbtn_bld.get_object("srcnum").expect("Couldn't get srcnum");
-        let num = srcnum.get_text().as_str().parse::<usize>().unwrap();
+        let mut num = srcnum.get_text().as_str().parse::<usize>().unwrap();
+        if num == 0 || num > simulations_indsrc.borrow()[0].max_sources {
+           //error 
+        } else {
+            num = num - 1;
 
-        let topl_image: Image = shwbtn_bld.get_object("indsrc_denygraph").expect("NO");
-        let topr_image: Image = shwbtn_bld.get_object("indsrc_reqtimegraph").expect("NO");
-        let btml_image: Image = shwbtn_bld.get_object("indsrc_buftimegraph").expect("NO");
-        let btmr_image: Image = shwbtn_bld.get_object("indsrc_proctimegraph").expect("NO");
+            let topl_image: Image = shwbtn_bld.get_object("indsrc_denygraph").expect("NO");
+            let topr_image: Image = shwbtn_bld.get_object("indsrc_reqtimegraph").expect("NO");
+            let btml_image: Image = shwbtn_bld.get_object("indsrc_buftimegraph").expect("NO");
+            let btmr_image: Image = shwbtn_bld.get_object("indsrc_proctimegraph").expect("NO");
 
-        let mut x_marks: Vec<f64> = vec![0.0; 21];
-        x_marks = x_marks.iter()
-                         .enumerate()
-                         .map(|(i, _)| (i * 5) as f64)
-                         .collect();
+            let mut x_marks: Vec<f64> = vec![0.0; 21];
+            x_marks = x_marks.iter()
+                            .enumerate()
+                            .map(|(i, _)| (i * 5) as f64)
+                            .collect();
 
-        let mut src_deny_probs: Vec<f64> = simulations_indsrc.borrow().iter()
-                                                .map(|x| statistics::src_deny_probability(x, num))
-                                                .collect();
-        src_deny_probs.insert(0, 0.);
-        plot(&x_marks, &src_deny_probs, "Deny prob",
+            let mut src_deny_probs: Vec<f64> = simulations_indsrc.borrow().iter()
+                                                    .map(|x| statistics::src_deny_probability(x, num))
+                                                    .collect();
+            src_deny_probs.insert(0, 0.);
+            plot(&x_marks, &src_deny_probs, "Deny prob",
+                                            "% of reqs processed",
+                                            "Deny prob",
+                                            format!("target/plot/auto_src_deny{}.png", num).as_str(),
+                                            400, 300);
+
+            let mut src_req_times: Vec<f64> = simulations_indsrc.borrow().iter()
+                                                    .map(|x| statistics::src_avg_request_time_in_system(x, num))
+                                                    .collect();
+            src_req_times.insert(0, 0.);
+            plot(&x_marks, &src_req_times, "Avg req time in sys",
                                         "% of reqs processed",
-                                        "Deny prob",
-                                        format!("target/plot/auto_src_deny{}.png", num).as_str(),
+                                        "Avg req time in sys",
+                                        format!("target/plot/auto_src_reqt{}.png", num).as_str(),
                                         400, 300);
 
-        let mut src_req_times: Vec<f64> = simulations_indsrc.borrow().iter()
-                                                .map(|x| statistics::src_avg_request_time_in_system(x, num))
-                                                .collect();
-        src_req_times.insert(0, 0.);
-        plot(&x_marks, &src_req_times, "Avg req time in sys",
-                                    "% of reqs processed",
-                                    "Avg req time in sys",
-                                    format!("target/plot/auto_src_reqt{}.png", num).as_str(),
-                                    400, 300);
-
-        let mut src_buf_times: Vec<f64> = simulations_indsrc.borrow().iter()
-                                                .map(|x| statistics::src_avg_request_time_in_buffer(x, num))
-                                                .collect();
-        src_buf_times.insert(0, 0.);
-        plot(&x_marks, &src_buf_times, "Avg req time in buf",
-                                    "% of reqs processed",
-                                    "Avg req time in buf",
-                                    format!("target/plot/auto_src_buft{}.png", num).as_str(),
-                                    400, 300);
-
-        let mut src_proc_times: Vec<f64> = simulations_indsrc.borrow().iter()
-                                                .map(|x| statistics::src_avg_devices_busy(x, num))
-                                                .collect();
-        src_proc_times.insert(0, 0.);
-        plot(&x_marks, &src_proc_times, "Avg req time processing",
+            let mut src_buf_times: Vec<f64> = simulations_indsrc.borrow().iter()
+                                                    .map(|x| statistics::src_avg_request_time_in_buffer(x, num))
+                                                    .collect();
+            src_buf_times.insert(0, 0.);
+            plot(&x_marks, &src_buf_times, "Avg req time in buf",
                                         "% of reqs processed",
-                                        "Avg req time processing",
-                                        format!("target/plot/auto_src_proc{}.png", num).as_str(),
+                                        "Avg req time in buf",
+                                        format!("target/plot/auto_src_buft{}.png", num).as_str(),
                                         400, 300);
 
-        topl_image.set_from_file(format!("target/plot/auto_src_deny{}.png", num).as_str());
-        topr_image.set_from_file(format!("target/plot/auto_src_reqt{}.png", num).as_str());
-        btml_image.set_from_file(format!("target/plot/auto_src_buft{}.png", num).as_str());
-        btmr_image.set_from_file(format!("target/plot/auto_src_proc{}.png", num).as_str());
+            let mut src_proc_times: Vec<f64> = simulations_indsrc.borrow().iter()
+                                                    .map(|x| statistics::src_avg_devices_busy(x, num))
+                                                    .collect();
+            src_proc_times.insert(0, 0.);
+            plot(&x_marks, &src_proc_times, "Avg req time processing",
+                                            "% of reqs processed",
+                                            "Avg req time processing",
+                                            format!("target/plot/auto_src_proc{}.png", num).as_str(),
+                                            400, 300);
+
+            topl_image.set_from_file(format!("target/plot/auto_src_deny{}.png", num).as_str());
+            topr_image.set_from_file(format!("target/plot/auto_src_reqt{}.png", num).as_str());
+            btml_image.set_from_file(format!("target/plot/auto_src_buft{}.png", num).as_str());
+            btmr_image.set_from_file(format!("target/plot/auto_src_proc{}.png", num).as_str());
+        }
     }));
 }
