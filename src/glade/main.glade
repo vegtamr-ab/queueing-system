@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <object class="GtkImage" id="clear">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">gtk-undelete-rtl</property>
+  </object>
+  <object class="GtkListStore" id="clevels">
+    <columns>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Standard</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">High</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Very High</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkImage" id="exitsrc">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">gtk-cancel</property>
+  </object>
+  <object class="GtkWindow" id="indsrcwindow">
+    <property name="width-request">840</property>
+    <property name="height-request">690</property>
+    <property name="can-focus">False</property>
+    <property name="resizable">False</property>
+    <property name="default-width">840</property>
+    <property name="default-height">690</property>
+    <property name="destroy-with-parent">True</property>
+    <signal name="destroy" handler="gtk_widget_hide" swapped="no"/>
+    <child>
+      <object class="GtkLayout" id="indsrclayout">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <child>
+          <object class="GtkEntry" id="srcnum">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="input-purpose">number</property>
+          </object>
+          <packing>
+            <property name="x">130</property>
+            <property name="y">15</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="srcnuml">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Source number:</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">21</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="show_button">
+            <property name="label" translatable="yes">Show graphs</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+          </object>
+          <packing>
+            <property name="x">340</property>
+            <property name="y">15</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="indsrc_denygraph">
+            <property name="width-request">400</property>
+            <property name="height-request">300</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">70</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="indsrc_reqtimegraph">
+            <property name="width-request">400</property>
+            <property name="height-request">300</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">430</property>
+            <property name="y">70</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="indsrc_buftimegraph">
+            <property name="width-request">400</property>
+            <property name="height-request">300</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">380</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="indsrc_proctimegraph">
+            <property name="width-request">400</property>
+            <property name="height-request">300</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">430</property>
+            <property name="y">380</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="exit_src">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="image">exitsrc</property>
+          </object>
+          <packing>
+            <property name="x">790</property>
+            <property name="y">15</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="reqstatl">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">500</property>
+            <property name="y">21</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkImage" id="exitstep">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">gtk-cancel</property>
+  </object>
+  <object class="GtkImage" id="quit">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">gtk-cancel</property>
+  </object>
+  <object class="GtkWindow" id="mainwindow">
+    <property name="width-request">1120</property>
+    <property name="height-request">670</property>
+    <property name="can-focus">False</property>
+    <property name="resizable">False</property>
+    <property name="default-width">1120</property>
+    <property name="default-height">670</property>
+    <child>
+      <object class="GtkLayout" id="mainlayout">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <child>
+          <object class="GtkEntry" id="numsrc">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="input-purpose">number</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">40</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="numdvc">
+            <property name="width-request">168</property>
+            <property name="height-request">34</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="input-purpose">number</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">120</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="bufcap">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="input-purpose">number</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">200</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="avgsrc">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="input-purpose">number</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">280</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="avgdvc">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="input-purpose">number</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">360</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="numsrcl">
+            <property name="width-request">32</property>
+            <property name="height-request">20</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Number of sources:</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">20</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="numdvcl">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Number of devices:</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">100</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="bufcapl">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Buffer capacity:</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">180</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="avgsrcl">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Average request arrival cooldown:</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">260</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="avgdvcl">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Average request processing time:</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">340</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="confidencel">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Confidence level:</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">420</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBox" id="confidence">
+            <property name="width-request">170</property>
+            <property name="height-request">30</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="model">clevels</property>
+            <property name="active">0</property>
+            <property name="id-column">0</property>
+            <child>
+              <object class="GtkCellRendererText" id="st"/>
+              <attributes>
+                <attribute name="text">0</attribute>
+              </attributes>
+            </child>
+            <child>
+              <object class="GtkCellRendererText" id="hi"/>
+              <attributes>
+                <attribute name="text">1</attribute>
+              </attributes>
+            </child>
+            <child>
+              <object class="GtkCellRendererText" id="vehi"/>
+              <attributes>
+                <attribute name="text">2</attribute>
+              </attributes>
+            </child>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">440</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="sim_button">
+            <property name="label" translatable="yes">Simulate</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">490</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="auto_denygraph">
+            <property name="width-request">800</property>
+            <property name="height-request">600</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">270</property>
+            <property name="y">20</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="auto_reqtimegraph">
+            <property name="width-request">800</property>
+            <property name="height-request">600</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">270</property>
+            <property name="y">20</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="auto_usagegraph">
+            <property name="width-request">800</property>
+            <property name="height-request">600</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">270</property>
+            <property name="y">20</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="deny_radio">
+            <property name="label" translatable="yes">Deny probability</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="active">True</property>
+            <property name="draw-indicator">True</property>
+          </object>
+          <packing>
+            <property name="x">300</property>
+            <property name="y">630</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="reqtime_radio">
+            <property name="label" translatable="yes">Average time request spent in system</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="active">True</property>
+            <property name="draw-indicator">True</property>
+            <property name="group">deny_radio</property>
+          </object>
+          <packing>
+            <property name="x">500</property>
+            <property name="y">630</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="usage_radio">
+            <property name="label" translatable="yes">Devices usage coefficient</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="active">True</property>
+            <property name="draw-indicator">True</property>
+            <property name="group">deny_radio</property>
+          </object>
+          <packing>
+            <property name="x">800</property>
+            <property name="y">630</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="test_button">
+            <property name="label" translatable="yes">Set test values</property>
+            <property name="width-request">92</property>
+            <property name="height-request">34</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Automatically set test values for upper fields</property>
+          </object>
+          <packing>
+            <property name="x">120</property>
+            <property name="y">490</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="clear_b">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Clear plot directory</property>
+            <property name="image">clear</property>
+            <property name="always-show-image">True</property>
+          </object>
+          <packing>
+            <property name="x">1077</property>
+            <property name="y">50</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="quit_b">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Quit application</property>
+            <property name="image">quit</property>
+            <property name="always-show-image">True</property>
+            <signal name="clicked" handler="gtk_main_quit" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">1077</property>
+            <property name="y">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="src_button">
+            <property name="label" translatable="yes">Sources' individual statistics</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">535</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="stepmode_button">
+            <property name="label" translatable="yes">Step mode</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Shows incorrect data if needed checkbox wasn't active when simulating</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">625</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkWindow" id="stepmodewindow">
+    <property name="width-request">840</property>
+    <property name="height-request">500</property>
+    <property name="can-focus">False</property>
+    <property name="resizable">False</property>
+    <property name="default-width">840</property>
+    <property name="default-height">500</property>
+    <child>
+      <object class="GtkPaned" id="srcpanels">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="orientation">vertical</property>
+        <property name="position">463</property>
+        <property name="position-set">True</property>
+        <child>
+          <object class="GtkScrolledWindow" id="stepmodescrolled">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
+            <child>
+              <object class="GtkLayout" id="stepmodelayout">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="hscroll-policy">natural</property>
+                <property name="vscroll-policy">natural</property>
+                <child>
+                  <object class="GtkLabel" id="srcl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Sources
+</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">40</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="bufl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Buffer
+</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">200</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="dvcl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Devices
+</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">120</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="step_src">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">60</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="step_dvc">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">140</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="step_buf">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">220</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="reqleftl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">280</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="cureventl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">340</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="curtimel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">310</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="exit_step">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Quit application</property>
+                    <property name="image">exitstep</property>
+                    <property name="always-show-image">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">790</property>
+                    <property name="y">15</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="resize">False</property>
+            <property name="shrink">True</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLayout" id="mksteplayout">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkButton" id="step_button">
+                <property name="label" translatable="yes">Make step</property>
+                <property name="width-request">840</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="hexpand">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="resize">True</property>
+            <property name="shrink">True</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

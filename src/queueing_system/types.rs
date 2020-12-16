@@ -75,31 +75,3 @@ pub struct Simulation {
     pub current_time: u64,
     /* END   OF SIM STATE  */
 }
-
-impl ConfidenceLevel {
-    pub const ALL: [ConfidenceLevel; 3] = [
-        ConfidenceLevel::Standard,
-        ConfidenceLevel::High,
-        ConfidenceLevel::VeryHigh,
-    ];
-}
-
-impl std::fmt::Display for ConfidenceLevel {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                ConfidenceLevel::Standard => "Standard (0.9)",
-                ConfidenceLevel::High     => "High (0.95)",
-                ConfidenceLevel::VeryHigh => "High (0.99)",
-            }
-        )
-    }
-}
-
-impl Default for ConfidenceLevel {
-    fn default() -> ConfidenceLevel {
-        ConfidenceLevel::Standard
-    }
-}
