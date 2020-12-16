@@ -4,10 +4,11 @@ use gio::*;
 use glib::*;
 use gtk::*;
 
-use crate::queueing_system::{analytics, statistics, types};
+use crate::queueing_system::{analytics, statistics, types, simulation};
 
 use super::plotting::*;
-use std::{rc::Rc, cell::RefCell, fs};
+use super::state_draw::*;
+use std::{rc::Rc, cell::RefCell, fs, cmp};
 
 pub fn get_confidence(str: &str) -> Result<types::ConfidenceLevel, &str> {
     match str {
@@ -50,9 +51,12 @@ pub fn build_ui(application: &gtk::Application) {
     let usage_radio: RadioButton = builder.get_object("usage_radio").expect("NO");
 
     let simulations: Rc<RefCell<Vec<types::Simulation>>> = Rc::new(RefCell::new(Vec::new()));
+    let final_n: Rc<RefCell<usize>> = Rc::new(RefCell::new(100));
 
     let btn_bld = builder.clone();
     let simulations_btn_gen = simulations.clone();
+    let final_n_btn_gen = final_n.clone();
+
     sim_button.connect_clicked(clone!(@weak window => move |_| {
         let numsrc: Entry = btn_bld.get_object("numsrc").expect("Couldn't get numsrc");
         let numdvc: Entry = btn_bld.get_object("numdvc").expect("Couldn't get numdvc");
@@ -70,7 +74,9 @@ pub fn build_ui(application: &gtk::Application) {
         };
         let confidence_level = get_confidence(confidence.get_active_id().unwrap().as_str()).unwrap();
 
-        *simulations_btn_gen.borrow_mut() = analytics::get_res(confidence_level, 100, inp, None).0;
+        let (sims, fin_n) = analytics::get_res(confidence_level, 100, inp, None);
+        *simulations_btn_gen.borrow_mut() = sims;
+        *final_n_btn_gen.borrow_mut() = fin_n;
         if simulations_btn_gen.borrow().len() == 21 {
             simulations_btn_gen.borrow_mut().remove(0);
         }
@@ -181,9 +187,16 @@ pub fn build_ui(application: &gtk::Application) {
         srcexit_window.hide();
     }));
 
+    // let closesrc_window = ind_src_window.clone();
+    // ind_src_window.connect_delete_event(clone!(@weak window => move |_, _| {
+    //     closesrc_window.hide();
+    //     Inhibit{ 0: true }
+    // }));
+
     let show_button: Button = builder.get_object("show_button").expect("NO");
     let shwbtn_bld = builder.clone();
     let simulations_indsrc = simulations.clone();
+    let final_indsrc = final_n.clone();
     show_button.connect_clicked(clone!(@weak window => move |_| {
         let srcnum: Entry = shwbtn_bld.get_object("srcnum").expect("Couldn't get srcnum");
         let mut num = srcnum.get_text().as_str().parse::<usize>().unwrap();
@@ -247,6 +260,86 @@ pub fn build_ui(application: &gtk::Application) {
             topr_image.set_from_file(format!("target/plot/auto_src_reqt{}.png", num).as_str());
             btml_image.set_from_file(format!("target/plot/auto_src_buft{}.png", num).as_str());
             btmr_image.set_from_file(format!("target/plot/auto_src_proc{}.png", num).as_str());
+
+            let reqproc: Label = shwbtn_bld.get_object("reqstatl").expect("NO");
+            reqproc.set_text(format!("Requests generated: {} out of {}",
+                                     simulations_indsrc.borrow()[19].state.s_requests_count[num],
+                                     final_indsrc.borrow()).as_str());
+        };
+    }));
+
+    let simulation: Rc<RefCell<Option<types::Simulation>>> = Rc::new(RefCell::new(None));
+
+    let stepmode_button: Button = builder.get_object("stepmode_button").expect("NO");
+    let stepmode_window: Window = builder.get_object("stepmodewindow").expect("Couldn't get");
+
+    let stepopen_window = stepmode_window.clone();
+    let stepmode_init_sim = simulation.clone();
+    let stepopen_bld = builder.clone();
+    stepmode_button.connect_clicked(clone!(@weak window => move |_| {
+        let numsrc: Entry = stepopen_bld.get_object("numsrc").expect("Couldn't get numsrc");
+        let numdvc: Entry = stepopen_bld.get_object("numdvc").expect("Couldn't get numdvc");
+        let bufcap: Entry = stepopen_bld.get_object("bufcap").expect("Couldn't get bufcap");
+        let avgsrc: Entry = stepopen_bld.get_object("avgsrc").expect("Couldn't get avgsrc");
+        let avgdvc: Entry = stepopen_bld.get_object("avgdvc").expect("Couldn't get avgdvc");
+
+        let inp = types::UserInput {
+            n_src: numsrc.get_text().as_str().parse::<usize>().unwrap(),
+            n_dvc: numdvc.get_text().as_str().parse::<usize>().unwrap(),
+            n_buf: bufcap.get_text().as_str().parse::<usize>().unwrap(),
+            avg_src: avgsrc.get_text().as_str().parse::<u64>().unwrap(),
+            avg_dvc: avgdvc.get_text().as_str().parse::<u64>().unwrap(),
+        };
+
+        *stepmode_init_sim.borrow_mut() = Some(analytics::base_simulation(*final_n.borrow(), inp));
+
+        let width = 40 + cmp::max(cmp::max(inp.n_src, inp.n_dvc), inp.n_buf) * 50;
+        let layout: Layout = stepopen_bld.get_object("stepmodelayout").expect("NO");
+        layout.set_property_width(width as u32);
+        // let exit_step: Button = stepopen_bld.get_object("exit_step").expect("NO");
+        // layout.set_child_x(&exit_step, width as i32 - 50);
+        
+        stepopen_window.show_all();
+    }));
+
+    let step_button: Button = builder.get_object("step_button").expect("NO");
+    let stpbtn_bld = builder.clone();
+
+    let simulation_stepmode = simulation.clone();
+
+    step_button.connect_clicked(clone!(@weak window => move |_| {
+        let sim = simulation_stepmode.borrow().clone().unwrap();
+
+        if sim.current_event != types::SimulationEvent::StopSimulation {
+            *simulation_stepmode.borrow_mut() = Some(simulation::simulator(&sim));
         }
+
+        draw_sources(&sim);
+        let src_image: Image = stpbtn_bld.get_object("step_src").expect("NO");
+        src_image.set_from_file("target/stepmodeui/states.png");
+
+        draw_devices(&sim);
+        let dvc_image: Image = stpbtn_bld.get_object("step_dvc").expect("NO");
+        dvc_image.set_from_file("target/stepmodeui/devices.png");
+
+        draw_buffer(&sim);
+        let buf_image: Image = stpbtn_bld.get_object("step_buf").expect("NO");
+        buf_image.set_from_file("target/stepmodeui/buffer.png");
+
+        let reqleft: Label = stpbtn_bld.get_object("reqleftl").expect("NO");
+        reqleft.set_text(format!("Requests left: {}, processed: {}, denied: {}",
+                                 sim.state.requests_left,
+                                 sim.state.requests_processed,
+                                 sim.state.requests_denied).as_str());
+        let curtime: Label = stpbtn_bld.get_object("curtimel").expect("NO");
+        curtime.set_text(format!("Current time: {}", sim.current_time).as_str());
+        let curevent: Label = stpbtn_bld.get_object("cureventl").expect("NO");
+        curevent.set_text(format!("Current event: {:?}", sim.current_event).as_str());
+    }));
+
+    let exit_step: Button = builder.get_object("exit_step").expect("NO");
+    let stepexit_window = stepmode_window.clone();
+    exit_step.connect_clicked(clone!(@weak window => move |_| {
+        stepexit_window.hide();
     }));
 }

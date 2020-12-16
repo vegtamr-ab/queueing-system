@@ -17,7 +17,7 @@ fn number_of_entries(cl: ConfidenceLevel, p: f64) -> usize {
     ((st_value * st_value * (1.0 - p)) / (p * delta * delta)) as usize
 }
 
-fn base_simulation(n: usize, inp: UserInput) -> Simulation {
+pub fn base_simulation(n: usize, inp: UserInput) -> Simulation {
     Simulation {
         max_sources: inp.n_src,
         max_devices: inp.n_dvc,
@@ -61,7 +61,6 @@ fn simulation_cycle(s: &Simulation) -> Vec<Simulation> {
         sim = simulator(&sim);
         if (sim.state.requests_left % five_percent == 0)
             && (sim.current_event != SimulationEvent::PutNewRequestToBuffer) {
-            println!("{}", sim.state.requests_left);
             simulations.push(sim.clone());
         }
     }

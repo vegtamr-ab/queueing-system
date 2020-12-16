@@ -37,6 +37,7 @@
     <property name="default-width">840</property>
     <property name="default-height">690</property>
     <property name="destroy-with-parent">True</property>
+    <signal name="destroy" handler="gtk_widget_hide" swapped="no"/>
     <child>
       <object class="GtkLayout" id="indsrclayout">
         <property name="visible">True</property>
@@ -135,8 +136,23 @@
             <property name="y">15</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkLabel" id="reqstatl">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">500</property>
+            <property name="y">21</property>
+          </packing>
+        </child>
       </object>
     </child>
+  </object>
+  <object class="GtkImage" id="exitstep">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">gtk-cancel</property>
   </object>
   <object class="GtkImage" id="quit">
     <property name="visible">True</property>
@@ -148,7 +164,7 @@
     <property name="height-request">670</property>
     <property name="can-focus">False</property>
     <property name="resizable">False</property>
-    <property name="default-width">1100</property>
+    <property name="default-width">1120</property>
     <property name="default-height">670</property>
     <child>
       <object class="GtkLayout" id="mainlayout">
@@ -405,19 +421,6 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="src_button">
-            <property name="label" translatable="yes">Sources' individual statistics</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <property name="tooltip-text" translatable="yes">Shows incorrect data if needed checkbox wasn't active when simulating</property>
-          </object>
-          <packing>
-            <property name="x">20</property>
-            <property name="y">625</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkButton" id="test_button">
             <property name="label" translatable="yes">Set test values</property>
             <property name="width-request">92</property>
@@ -459,6 +462,200 @@
           <packing>
             <property name="x">1077</property>
             <property name="y">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="src_button">
+            <property name="label" translatable="yes">Sources' individual statistics</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">535</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="stepmode_button">
+            <property name="label" translatable="yes">Step mode</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Shows incorrect data if needed checkbox wasn't active when simulating</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">625</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkWindow" id="stepmodewindow">
+    <property name="width-request">840</property>
+    <property name="height-request">500</property>
+    <property name="can-focus">False</property>
+    <property name="resizable">False</property>
+    <property name="default-width">840</property>
+    <property name="default-height">500</property>
+    <child>
+      <object class="GtkPaned" id="srcpanels">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="orientation">vertical</property>
+        <property name="position">463</property>
+        <property name="position-set">True</property>
+        <child>
+          <object class="GtkScrolledWindow" id="stepmodescrolled">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
+            <child>
+              <object class="GtkLayout" id="stepmodelayout">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="hscroll-policy">natural</property>
+                <property name="vscroll-policy">natural</property>
+                <child>
+                  <object class="GtkLabel" id="srcl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Sources
+</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">40</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="bufl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Buffer
+</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">200</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="dvcl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Devices
+</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">120</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="step_src">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">60</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="step_dvc">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">140</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="step_buf">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">220</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="reqleftl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">280</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="cureventl">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">340</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="curtimel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="x">20</property>
+                    <property name="y">310</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="exit_step">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Quit application</property>
+                    <property name="image">exitstep</property>
+                    <property name="always-show-image">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">790</property>
+                    <property name="y">15</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="resize">False</property>
+            <property name="shrink">True</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLayout" id="mksteplayout">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkButton" id="step_button">
+                <property name="label" translatable="yes">Make step</property>
+                <property name="width-request">840</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="hexpand">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="resize">True</property>
+            <property name="shrink">True</property>
           </packing>
         </child>
       </object>
